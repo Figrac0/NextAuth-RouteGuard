@@ -75,7 +75,7 @@ function StartingPageContent() {
                     Join thousands of users who already trust AuraConnect for
                     their daily conversations. Experience the difference today.
                 </p>
-                <Link href="/auth">
+                <Link href="/auth" legacyBehavior>
                     <a className={classes.ctaButton}>Get Started Now</a>
                 </Link>
             </div>

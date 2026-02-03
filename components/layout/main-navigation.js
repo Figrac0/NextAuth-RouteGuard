@@ -20,7 +20,7 @@ function MainNavigation() {
     return (
         <header className={classes.header}>
             <div className={classes.headerContent}>
-                <Link href="/">
+                <Link href="/" legacyBehavior>
                     <a className={classes.logoLink}>
                         <div className={classes.logo}>
                             <span className={classes.logoIcon}>✨</span>
@@ -41,14 +41,14 @@ function MainNavigation() {
                     className={`${classes.nav} ${showMenu ? classes.show : ""}`}>
                     <ul>
                         <li>
-                            <Link href="/">
+                            <Link href="/" legacyBehavior>
                                 <a onClick={() => setShowMenu(false)}>Home</a>
                             </Link>
                         </li>
 
                         {!session && !loading && (
                             <li>
-                                <Link href="/auth">
+                                <Link href="/auth" legacyBehavior>
                                     <a onClick={() => setShowMenu(false)}>
                                         Login
                                     </a>
@@ -59,14 +59,14 @@ function MainNavigation() {
                         {session && (
                             <>
                                 <li>
-                                    <Link href="/profile">
+                                    <Link href="/profile" legacyBehavior>
                                         <a onClick={() => setShowMenu(false)}>
                                             Profile
                                         </a>
                                     </Link>
                                 </li>
                                 <li>
-                                    <Link href="/settings">
+                                    <Link href="/settings" legacyBehavior>
                                         <a onClick={() => setShowMenu(false)}>
                                             Settings
                                         </a>
