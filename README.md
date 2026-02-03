@@ -2,6 +2,20 @@
 
 A secure, full-featured authentication and user management system built with Next.js, featuring robust authentication, profile management, and modern UI/UX design.
 
+## 🎯 Live Demonstration
+
+<div align="center">
+
+<h3>Project Overview & Live Demo</h3>
+
+<div style="display: flex; gap: 20px; justify-content: center; flex-wrap: wrap; margin: 30px 0;">
+
+<a href="https://next-auth-route-guard-73o9.vercel.app/" target="_blank" style="text-decoration: none;">
+  <div style="background: linear-gradient(135deg, #2563eb, #7c3aed); padding: 15px 30px; border-radius: 12px; color: white; font-weight: bold; font-size: 18px; box-shadow: 0 4px 15px rgba(37, 99, 235, 0.3); transition: all 0.3s ease; border: 2px solid white;">
+    View Live Application
+  </div>
+</a>
+
 ## 📸 Project Preview
 
 <p align="center">
