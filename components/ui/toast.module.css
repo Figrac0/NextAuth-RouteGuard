@@ -1,0 +1,39 @@
+.toast {
+    background: linear-gradient(145deg, #1a0a1f 0%, #2d0e2f 100%);
+    color: #e6d4b3;
+    border: 1px solid rgba(212, 175, 55, 0.2);
+    border-radius: 10px;
+    padding: 1rem 1.5rem;
+    font-weight: 500;
+    backdrop-filter: blur(10px);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+}
+
+.successToast {
+    border-color: rgba(76, 217, 100, 0.3);
+    background: linear-gradient(145deg, #1a0a1f 0%, rgba(45, 14, 47, 0.9) 100%);
+}
+
+.successToast::before {
+    content: "✅ ";
+    margin-right: 0.5rem;
+}
+
+.errorToast {
+    border-color: rgba(255, 87, 87, 0.3);
+    background: linear-gradient(145deg, #1a0a1f 0%, rgba(47, 14, 14, 0.9) 100%);
+}
+
+.errorToast::before {
+    content: "⚠️ ";
+    margin-right: 0.5rem;
+}
+
+.loadingToast {
+    border-color: rgba(212, 175, 55, 0.3);
+}
+
+.loadingToast::before {
+    content: "⏳ ";
+    margin-right: 0.5rem;
+}

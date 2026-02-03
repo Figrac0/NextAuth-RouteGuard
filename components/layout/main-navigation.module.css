@@ -1,0 +1,257 @@
+.header {
+    width: 100%;
+    height: 5rem;
+    background: linear-gradient(90deg, #1a0a1f 0%, #2d0e2f 100%);
+    box-shadow:
+        0 4px 20px rgba(0, 0, 0, 0.4),
+        0 0 0 1px rgba(212, 175, 55, 0.1);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    backdrop-filter: blur(10px);
+}
+
+.headerContent {
+    width: 100%;
+    max-width: 1200px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 2rem;
+}
+
+.logoLink {
+    text-decoration: none;
+}
+
+.logo {
+    font-family: "Lato", sans-serif;
+    font-size: 1.8rem;
+    background: linear-gradient(90deg, #d4af37 0%, #e0c158 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin: 0;
+    font-weight: 900;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    position: relative;
+    padding: 0.5rem 0;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.logo:hover {
+    transform: scale(1.05);
+}
+
+.logoIcon {
+    font-size: 2rem;
+    -webkit-text-fill-color: #d4af37;
+}
+
+.menuToggle {
+    display: none;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0.5rem;
+}
+
+.menuIcon {
+    display: block;
+    width: 25px;
+    height: 3px;
+    background: #d4af37;
+    position: relative;
+    transition: all 0.3s ease;
+}
+
+.menuIcon::before,
+.menuIcon::after {
+    content: '';
+    position: absolute;
+    width: 100%;
+    height: 3px;
+    background: #d4af37;
+    left: 0;
+    transition: all 0.3s ease;
+}
+
+.menuIcon::before {
+    top: -8px;
+}
+
+.menuIcon::after {
+    bottom: -8px;
+}
+
+.menuIcon.active {
+    background: transparent;
+}
+
+.menuIcon.active::before {
+    transform: rotate(45deg);
+    top: 0;
+}
+
+.menuIcon.active::after {
+    transform: rotate(-45deg);
+    bottom: 0;
+}
+
+.nav {
+    flex: 1;
+    display: flex;
+    justify-content: flex-end;
+}
+
+.nav ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    gap: 2rem;
+}
+
+.nav li {
+    margin: 0;
+}
+
+.nav a {
+    text-decoration: none;
+    color: #e6d4b3;
+    font-weight: 600;
+    font-size: 0.9rem;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    padding: 0.6rem 1.2rem;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.nav a::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(145deg, rgba(212, 175, 55, 0.1), rgba(212, 175, 55, 0.05));
+    border-radius: 8px;
+    transform: scaleX(0);
+    transform-origin: right;
+    transition: transform 0.3s ease;
+    z-index: -1;
+}
+
+.nav a:hover::before {
+    transform: scaleX(1);
+    transform-origin: left;
+}
+
+.nav a:hover {
+    color: #d4af37;
+}
+
+.userMenu {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.userName {
+    color: #e6d4b3;
+    font-weight: 600;
+    font-size: 0.9rem;
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+}
+
+.logoutButton {
+    background: transparent;
+    border: 2px solid rgba(212, 175, 55, 0.3);
+    color: #d4af37;
+    padding: 0.5rem 1.2rem;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.logoutButton:hover {
+    background: rgba(212, 175, 55, 0.1);
+    border-color: #d4af37;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(212, 175, 55, 0.2);
+}
+
+/* Мобильная адаптация */
+@media (max-width: 768px) {
+    .headerContent {
+        padding: 0 1rem;
+    }
+    
+    .menuToggle {
+        display: block;
+    }
+    
+    .nav {
+        position: fixed;
+        top: 5rem;
+        left: 0;
+        right: 0;
+        background: linear-gradient(145deg, #1a0a1f 0%, #2d0e2f 100%);
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        transform: translateY(-100%);
+        opacity: 0;
+        visibility: hidden;
+        transition: all 0.3s ease;
+        z-index: 999;
+    }
+    
+    .nav.show {
+        transform: translateY(0);
+        opacity: 1;
+        visibility: visible;
+    }
+    
+    .nav ul {
+        flex-direction: column;
+        padding: 2rem;
+        gap: 1rem;
+    }
+    
+    .nav a {
+        display: block;
+        width: 100%;
+        text-align: center;
+    }
+    
+    .userMenu {
+        flex-direction: column;
+        width: 100%;
+        padding-top: 1rem;
+        border-top: 1px solid rgba(212, 175, 55, 0.1);
+    }
+    
+    .userName {
+        margin-bottom: 0.5rem;
+    }
+    
+    .logoutButton {
+        width: 100%;
+    }
+}

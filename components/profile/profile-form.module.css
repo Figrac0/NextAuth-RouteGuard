@@ -1,0 +1,126 @@
+/* components/profile/profile-form.module.css */
+
+.form {
+    width: 95%;
+    max-width: 28rem;
+    margin: 2rem auto;
+    padding: 2rem;
+    background: linear-gradient(145deg, #1a0a1f 0%, #2d0e2f 100%);
+    border-radius: 12px;
+    box-shadow:
+        0 10px 30px rgba(0, 0, 0, 0.3),
+        0 0 0 1px rgba(120, 30, 100, 0.2);
+    animation: slideUp 0.5s ease-out;
+}
+
+.form::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, #d4af37 0%, #c9a227 50%, #b8860b 100%);
+    border-radius: 12px 12px 0 0;
+}
+
+.control {
+    margin-bottom: 1.5rem;
+    position: relative;
+}
+
+.control label {
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    color: #e6d4b3;
+    display: block;
+    font-size: 0.9rem;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+}
+
+.control input {
+    display: block;
+    font: inherit;
+    width: 100%;
+    border-radius: 8px;
+    border: 2px solid rgba(212, 175, 55, 0.3);
+    padding: 0.8rem 1rem;
+    background: rgba(255, 255, 255, 0.05);
+    color: #fff;
+    transition: all 0.3s ease;
+}
+
+.control input:focus {
+    outline: none;
+    border-color: #d4af37;
+    box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.2);
+    background: rgba(255, 255, 255, 0.08);
+}
+
+.control input::placeholder {
+    color: rgba(230, 212, 179, 0.5);
+}
+
+.action {
+    margin-top: 2rem;
+    text-align: center;
+}
+
+.action button {
+    font: inherit;
+    cursor: pointer;
+    padding: 1rem 2.5rem;
+    border-radius: 8px;
+    background: linear-gradient(145deg, #d4af37 0%, #c9a227 100%);
+    color: #1a0a1f;
+    border: none;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 4px 15px rgba(212, 175, 55, 0.3);
+}
+
+.action button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(212, 175, 55, 0.4);
+    background: linear-gradient(145deg, #e0c158 0%, #d4af37 100%);
+}
+
+.action button:active {
+    transform: translateY(0);
+}
+
+.action button::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(
+        90deg,
+        transparent,
+        rgba(255, 255, 255, 0.2),
+        transparent
+    );
+    transition: left 0.5s ease;
+}
+
+.action button:hover::after {
+    left: 100%;
+}
+
+@keyframes slideUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
