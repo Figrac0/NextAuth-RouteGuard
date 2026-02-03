@@ -1,560 +1,282 @@
-import { useSession } from "next-auth/react";
-import { useState, useEffect } from "react";
-import ProfileForm from "./profile-form";
-import classes from "./user-profile.module.css";
+import { useState } from "react";
+import { getSession } from "next-auth/react";
+import Layout from "../components/layout/layout";
+import classes from "../components/settings/settings.module.css";
 
-function UserProfile() {
-    const { data: session, status } = useSession();
-    const loading = status === "loading";
-    const [showPasswordForm, setShowPasswordForm] = useState(false);
-    const [passwordChangeStatus, setPasswordChangeStatus] = useState({
-        type: "",
-        message: "",
+function SettingsPage() {
+    const [theme, setTheme] = useState("dark");
+    const [notifications, setNotifications] = useState({
+        email: true,
+        push: true,
+        sound: false,
+        marketing: false,
     });
-
-    const [userData, setUserData] = useState({
-        email: "user@example.com",
-        memberSince: "Jan 15, 2024",
-        status: "Active",
-        lastLogin: "Today, 14:30",
-        messages: 128,
-        friends: 24,
-        onlineHours: 156,
-        streakDays: 7,
-        groups: 5,
+    const [privacy, setPrivacy] = useState({
+        profileVisible: true,
+        onlineStatus: true,
+        activityVisible: true,
     });
+    const [language, setLanguage] = useState("en");
+    const [isSaving, setIsSaving] = useState(false);
+    const [saveStatus, setSaveStatus] = useState("");
 
-    const [recentActivity, setRecentActivity] = useState([
-        { id: 1, icon: "💬", text: "Sent message to Alex", time: "2 min ago" },
+    const themes = [
         {
-            id: 2,
-            icon: "👥",
-            text: "Joined 'Design Team' group",
-            time: "1 hour ago",
+            id: "dark",
+            name: "Dark Elegance",
+            color: "#1a0a1f",
+            textColor: "#ffffff",
         },
         {
-            id: 3,
-            icon: "📱",
-            text: "Logged in from new device",
-            time: "3 hours ago",
+            id: "light",
+            name: "Light Premium",
+            color: "#f5f5f5",
+            textColor: "#1a0a1f",
         },
         {
-            id: 4,
-            icon: "⭐",
-            text: "Received 5-star rating",
-            time: "Yesterday",
+            id: "midnight",
+            name: "Midnight Blue",
+            color: "#0a1f2a",
+            textColor: "#ffffff",
         },
         {
-            id: 5,
-            icon: "🔔",
-            text: "Updated notification settings",
-            time: "2 days ago",
+            id: "amethyst",
+            name: "Amethyst",
+            color: "#2d0e2f",
+            textColor: "#ffffff",
         },
-    ]);
+    ];
 
-    const [securityLog, setSecurityLog] = useState([
-        {
-            id: 1,
-            action: "Password changed",
-            time: "Just now",
-            device: "Chrome, Windows",
-        },
-        {
-            id: 2,
-            action: "New login",
-            time: "Today, 14:30",
-            device: "Firefox, MacOS",
-        },
-        {
-            id: 3,
-            action: "Two-factor enabled",
-            time: "2 days ago",
-            device: "Safari, iOS",
-        },
-        {
-            id: 4,
-            action: "Email updated",
-            time: "1 week ago",
-            device: "Chrome, Android",
-        },
-    ]);
+    const languages = [
+        { code: "en", name: "English" },
+        { code: "es", name: "Spanish" },
+        { code: "fr", name: "French" },
+        { code: "de", name: "German" },
+    ];
 
-    useEffect(() => {
-        if (session?.user?.email) {
-            setUserData((prev) => ({
-                ...prev,
-                email: session.user.email,
-                lastLogin: new Date().toLocaleString("en-US", {
-                    weekday: "long",
-                    hour: "2-digit",
-                    minute: "2-digit",
-                }),
-            }));
-        }
-    }, [session]);
-
-    if (loading) {
-        return (
-            <section className={classes.profile}>
-                <div className={classes.loading}>
-                    <div className={classes.spinner}></div>
-                    <p>Loading your profile...</p>
-                    <small>Preparing your personalized experience</small>
-                </div>
-            </section>
-        );
-    }
-
-    // Если нет сессии (пользователь не авторизован), покажем сообщение
-    if (!session) {
-        return (
-            <section className={classes.profile}>
-                <div className={classes.notAuthenticated}>
-                    <h2>Not Authenticated</h2>
-                    <p>Please log in to view your profile.</p>
-                </div>
-            </section>
-        );
-    }
-
-    async function changePasswordHandler(passwordData) {
-        setPasswordChangeStatus({ type: "", message: "" });
-
-        // Валидация
-        if (passwordData.oldPassword === passwordData.newPassword) {
-            setPasswordChangeStatus({
-                type: "error",
-                message: "New password must be different from old password",
-            });
-            return;
-        }
-
-        if (passwordData.newPassword.length < 6) {
-            setPasswordChangeStatus({
-                type: "error",
-                message: "Password must be at least 6 characters long",
-            });
-            return;
-        }
-
-        try {
-            const response = await fetch("/api/user/change-password", {
-                method: "PATCH",
-                body: JSON.stringify(passwordData),
-                headers: {
-                    "Content-Type": "application/json",
-                },
-            });
-
-            const data = await response.json();
-
-            if (!response.ok) {
-                throw new Error(data.message || "Failed to change password");
-            }
-
-            setPasswordChangeStatus({
-                type: "success",
-                message:
-                    "Password changed successfully! Updating security log...",
-            });
-
-            // Добавляем запись в лог безопасности
-            setSecurityLog((prev) => [
-                {
-                    id: prev.length + 1,
-                    action: "Password changed",
-                    time: "Just now",
-                    device: `${navigator.userAgent.split(" ")[0]}, ${navigator.platform}`,
-                },
-                ...prev,
-            ]);
-
-            // Очищаем форму через 3 секунды
-            setTimeout(() => {
-                setShowPasswordForm(false);
-                setPasswordChangeStatus({ type: "", message: "" });
-            }, 3000);
-        } catch (error) {
-            console.error("Password change error:", error);
-            setPasswordChangeStatus({
-                type: "error",
-                message:
-                    error.message ||
-                    "Failed to change password. Please try again.",
-            });
-        }
-    }
-
-    const handleQuickAction = (action) => {
-        // Показываем уведомление вместо alert
-        setPasswordChangeStatus({
-            type: "info",
-            message: `${action} feature is coming soon!`,
-        });
-
-        setTimeout(() => {
-            setPasswordChangeStatus({ type: "", message: "" });
-        }, 3000);
+    const handleNotificationToggle = (type) => {
+        setNotifications((prev) => ({
+            ...prev,
+            [type]: !prev[type],
+        }));
     };
 
-    const handleLogoutAllSessions = () => {
-        if (
-            window.confirm("Are you sure you want to logout from all devices?")
-        ) {
-            handleQuickAction("Logout from all devices");
-        }
+    const handlePrivacyToggle = (type) => {
+        setPrivacy((prev) => ({
+            ...prev,
+            [type]: !prev[type],
+        }));
+    };
+
+    const handleSaveSettings = async () => {
+        setIsSaving(true);
+
+        setTimeout(() => {
+            setIsSaving(false);
+            setSaveStatus("Settings saved successfully!");
+
+            setTimeout(() => {
+                setSaveStatus("");
+            }, 3000);
+        }, 1500);
+    };
+
+    // Функция для определения контрастного цвета текста
+    const getTextColor = (backgroundColor) => {
+        // Преобразуем hex в RGB
+        const hex = backgroundColor.replace("#", "");
+        const r = parseInt(hex.substr(0, 2), 16);
+        const g = parseInt(hex.substr(2, 2), 16);
+        const b = parseInt(hex.substr(4, 2), 16);
+
+        // Рассчитываем яркость (формула восприятия яркости)
+        const brightness = (r * 299 + g * 587 + b * 114) / 1000;
+
+        // Возвращаем черный для светлых фонов, белый для темных
+        return brightness > 128 ? "#1a0a1f" : "#ffffff";
     };
 
     return (
-        <section className={classes.profile}>
-            {/* Уведомления */}
-            {passwordChangeStatus.message && (
-                <div
-                    className={`${classes.notification} ${classes[passwordChangeStatus.type]}`}>
-                    <span className={classes.notificationIcon}>
-                        {passwordChangeStatus.type === "success"
-                            ? "✅"
-                            : passwordChangeStatus.type === "error"
-                              ? "⚠️"
-                              : "ℹ️"}
-                    </span>
-                    <p>{passwordChangeStatus.message}</p>
-                    <button
-                        className={classes.closeNotification}
-                        onClick={() =>
-                            setPasswordChangeStatus({ type: "", message: "" })
-                        }>
-                        ×
-                    </button>
+        <div className={classes.settings}>
+            <h1>Settings</h1>
+
+            {saveStatus && (
+                <div className={classes.saveStatus}>
+                    <span className={classes.statusIcon}>✅</span>
+                    {saveStatus}
                 </div>
             )}
 
-            <div className={classes.profileContainer}>
-                <div className={classes.userInfoCard}>
-                    <div className={classes.cardHeader}>
-                        <h2>Account Information</h2>
-                        <button
-                            className={classes.editButton}
-                            onClick={() => handleQuickAction("Edit Profile")}>
-                            ✏️ Edit
-                        </button>
-                    </div>
-                    <div className={classes.userInfo}>
-                        <div className={classes.infoItem}>
-                            <div className={classes.infoLabel}>
-                                <span className={classes.infoIcon}>📧</span>
-                                <span>Email Address</span>
-                            </div>
-                            <div className={classes.infoValue}>
-                                {userData.email}
-                                <button
-                                    className={classes.copyButton}
-                                    onClick={() => {
-                                        navigator.clipboard.writeText(
-                                            userData.email,
-                                        );
-                                        handleQuickAction(
-                                            "Email copied to clipboard",
-                                        );
-                                    }}>
-                                    📋
-                                </button>
-                            </div>
-                        </div>
-                        <div className={classes.infoItem}>
-                            <div className={classes.infoLabel}>
-                                <span className={classes.infoIcon}>📅</span>
-                                <span>Member Since</span>
-                            </div>
-                            <div className={classes.infoValue}>
-                                {userData.memberSince}
-                                <span className={classes.daysActive}>
-                                    (
-                                    {Math.floor(
-                                        (new Date() - new Date("2024-01-15")) /
-                                            (1000 * 60 * 60 * 24),
-                                    )}{" "}
-                                    days)
+            <div className={classes.settingsSections}>
+                <div className={classes.settingsSection}>
+                    <h2>
+                        <span className={classes.sectionIcon}>🎨</span>
+                        Theme Preferences
+                    </h2>
+                    <div className={classes.themeSelector}>
+                        {themes.map((themeOption) => (
+                            <div
+                                key={themeOption.id}
+                                className={`${classes.themeOption} ${theme === themeOption.id ? classes.selected : ""}`}
+                                onClick={() => setTheme(themeOption.id)}
+                                style={{
+                                    backgroundColor: themeOption.color,
+                                    color: themeOption.textColor,
+                                }}>
+                                <div className={classes.themePreview}></div>
+                                <span
+                                    className={classes.themeName}
+                                    style={{ color: themeOption.textColor }}>
+                                    {themeOption.name}
                                 </span>
+                                {theme === themeOption.id && (
+                                    <span
+                                        className={classes.selectedBadge}
+                                        style={{
+                                            backgroundColor:
+                                                themeOption.textColor,
+                                            color: themeOption.color,
+                                        }}>
+                                        ✓
+                                    </span>
+                                )}
                             </div>
-                        </div>
-                        <div className={classes.infoItem}>
-                            <div className={classes.infoLabel}>
-                                <span className={classes.infoIcon}>✅</span>
-                                <span>Account Status</span>
-                            </div>
-                            <div className={classes.statusContainer}>
-                                <div className={classes.statusBadge}>
-                                    {userData.status}
-                                </div>
-                                <div className={classes.statusIndicator}></div>
-                            </div>
-                        </div>
-                        <div className={classes.infoItem}>
-                            <div className={classes.infoLabel}>
-                                <span className={classes.infoIcon}>🕒</span>
-                                <span>Last Login</span>
-                            </div>
-                            <div className={classes.infoValue}>
-                                {userData.lastLogin}
-                                <small className={classes.loginLocation}>
-                                    (Location: San Francisco, CA)
-                                </small>
-                            </div>
-                        </div>
+                        ))}
                     </div>
                 </div>
 
-                {/* Карточка активности */}
-                <div className={classes.activityCard}>
-                    <h2>Activity Overview</h2>
-                    <div className={classes.activityStats}>
-                        <div className={classes.activityItem}>
-                            <span className={classes.activityIcon}>💬</span>
-                            <span className={classes.activityValue}>
-                                {userData.messages}
-                            </span>
-                            <span className={classes.activityLabel}>
-                                Messages
-                            </span>
-                            <div className={classes.activityProgress}>
-                                <div
-                                    className={classes.progressBar}
-                                    style={{ width: "85%" }}></div>
-                            </div>
-                        </div>
-                        <div className={classes.activityItem}>
-                            <span className={classes.activityIcon}>👥</span>
-                            <span className={classes.activityValue}>
-                                {userData.friends}
-                            </span>
-                            <span className={classes.activityLabel}>
-                                Friends
-                            </span>
-                            <div className={classes.activityProgress}>
-                                <div
-                                    className={classes.progressBar}
-                                    style={{ width: "60%" }}></div>
-                            </div>
-                        </div>
-                        <div className={classes.activityItem}>
-                            <span className={classes.activityIcon}>🔥</span>
-                            <span className={classes.activityValue}>
-                                {userData.streakDays}d
-                            </span>
-                            <span className={classes.activityLabel}>
-                                Streak
-                            </span>
-                            <div className={classes.activityProgress}>
-                                <div
-                                    className={classes.progressBar}
-                                    style={{
-                                        width: `${Math.min(100, userData.streakDays * 10)}%`,
-                                    }}></div>
-                            </div>
-                        </div>
-                        <div className={classes.activityItem}>
-                            <span className={classes.activityIcon}>🏆</span>
-                            <span className={classes.activityValue}>
-                                {userData.groups}
-                            </span>
-                            <span className={classes.activityLabel}>
-                                Groups
-                            </span>
-                            <div className={classes.activityProgress}>
-                                <div
-                                    className={classes.progressBar}
-                                    style={{ width: "40%" }}></div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div className={classes.featureSections}>
-                <div
-                    className={`${classes.featureSection} ${classes.quickActions}`}>
-                    <div className={classes.sectionHeader}>
-                        <h2>Quick Actions</h2>
-                        <small>Click to perform actions</small>
-                    </div>
-                    <div className={classes.quickActionsGrid}>
-                        <div
-                            className={classes.quickAction}
-                            onClick={() => handleQuickAction("Edit Profile")}>
-                            <div className={classes.quickActionContent}>
-                                <span className={classes.quickActionIcon}>
-                                    ✏️
-                                </span>
-                                <span className={classes.quickActionLabel}>
-                                    Edit Profile
-                                </span>
-                            </div>
-                            <span className={classes.quickActionArrow}>→</span>
-                        </div>
-                        <div
-                            className={classes.quickAction}
-                            onClick={() =>
-                                handleQuickAction("Privacy Settings")
-                            }>
-                            <div className={classes.quickActionContent}>
-                                <span className={classes.quickActionIcon}>
-                                    👁️
-                                </span>
-                                <span className={classes.quickActionLabel}>
-                                    Privacy Settings
-                                </span>
-                            </div>
-                            <span className={classes.quickActionArrow}>→</span>
-                        </div>
-                        <div
-                            className={classes.quickAction}
-                            onClick={() => handleQuickAction("Theme Settings")}>
-                            <div className={classes.quickActionContent}>
-                                <span className={classes.quickActionIcon}>
-                                    🎨
-                                </span>
-                                <span className={classes.quickActionLabel}>
-                                    Themes
-                                </span>
-                            </div>
-                            <span className={classes.quickActionArrow}>→</span>
-                        </div>
-                        <div
-                            className={classes.quickAction}
-                            onClick={() =>
-                                handleQuickAction("Notification Settings")
-                            }>
-                            <div className={classes.quickActionContent}>
-                                <span className={classes.quickActionIcon}>
-                                    🔔
-                                </span>
-                                <span className={classes.quickActionLabel}>
+                <div className={classes.settingsSection}>
+                    <h2>
+                        <span className={classes.sectionIcon}>🔔</span>
+                        Notifications
+                    </h2>
+                    <div className={classes.toggleGroup}>
+                        {Object.entries(notifications).map(([key, value]) => (
+                            <div key={key} className={classes.toggleItem}>
+                                <span className={classes.toggleLabel}>
+                                    {key.charAt(0).toUpperCase() + key.slice(1)}{" "}
                                     Notifications
                                 </span>
+                                <button
+                                    className={`${classes.toggleButton} ${value ? classes.active : ""}`}
+                                    onClick={() =>
+                                        handleNotificationToggle(key)
+                                    }>
+                                    <div className={classes.toggleSlider}></div>
+                                </button>
                             </div>
-                            <span className={classes.quickActionArrow}>→</span>
-                        </div>
+                        ))}
                     </div>
                 </div>
 
-                <div
-                    className={`${classes.featureSection} ${classes.recentActivity}`}>
-                    <div className={classes.sectionHeader}>
-                        <h2>Recent Activity</h2>
-                        <small>Your latest actions</small>
-                    </div>
-                    <div className={classes.activityList}>
-                        {recentActivity.map((activity) => (
-                            <div
-                                key={activity.id}
-                                className={classes.activityListItem}>
-                                <span className={classes.activityIconSmall}>
-                                    {activity.icon}
+                {/* Конфиденциальность */}
+                <div className={classes.settingsSection}>
+                    <h2>
+                        <span className={classes.sectionIcon}>👁️</span>
+                        Privacy Settings
+                    </h2>
+                    <div className={classes.toggleGroup}>
+                        {Object.entries(privacy).map(([key, value]) => (
+                            <div key={key} className={classes.toggleItem}>
+                                <span className={classes.toggleLabel}>
+                                    {key === "profileVisible" &&
+                                        "Show Profile to Others"}
+                                    {key === "onlineStatus" &&
+                                        "Show Online Status"}
+                                    {key === "activityVisible" &&
+                                        "Show Recent Activity"}
                                 </span>
-                                <div className={classes.activityContent}>
-                                    <span className={classes.activityText}>
-                                        {activity.text}
-                                    </span>
-                                    <span className={classes.activityTime}>
-                                        {activity.time}
-                                    </span>
-                                </div>
+                                <button
+                                    className={`${classes.toggleButton} ${value ? classes.active : ""}`}
+                                    onClick={() => handlePrivacyToggle(key)}>
+                                    <div className={classes.toggleSlider}></div>
+                                </button>
                             </div>
                         ))}
                     </div>
                 </div>
 
-                <div
-                    className={`${classes.featureSection} ${classes.securityLog}`}>
-                    <div className={classes.sectionHeader}>
-                        <h2>Security Log</h2>
-                        <small>Recent security events</small>
-                    </div>
-                    <div className={classes.securityLogList}>
-                        {securityLog.map((log) => (
+                {/* Язык */}
+                <div className={classes.settingsSection}>
+                    <h2>
+                        <span className={classes.sectionIcon}>🌐</span>
+                        Language & Region
+                    </h2>
+                    <div className={classes.languageSelector}>
+                        {languages.map((lang) => (
                             <div
-                                key={log.id}
-                                className={classes.securityLogItem}>
-                                <div className={classes.securityLogIcon}>
-                                    🔒
-                                </div>
-                                <div className={classes.securityLogContent}>
-                                    <div className={classes.securityLogAction}>
-                                        {log.action}
-                                    </div>
-                                    <div className={classes.securityLogDetails}>
-                                        <span
-                                            className={classes.securityLogTime}>
-                                            {log.time}
-                                        </span>
-                                        <span
-                                            className={
-                                                classes.securityLogDevice
-                                            }>
-                                            {log.device}
-                                        </span>
-                                    </div>
-                                </div>
+                                key={lang.code}
+                                className={`${classes.languageOption} ${language === lang.code ? classes.selected : ""}`}
+                                onClick={() => setLanguage(lang.code)}>
+                                <span className={classes.languageName}>
+                                    {lang.name}
+                                </span>
+                                {language === lang.code && (
+                                    <span className={classes.selectedBadge}>
+                                        ✓
+                                    </span>
+                                )}
                             </div>
                         ))}
                     </div>
-                    <button
-                        className={classes.viewAllButton}
-                        onClick={handleLogoutAllSessions}>
-                        Logout All Sessions
-                    </button>
                 </div>
             </div>
 
-            {!showPasswordForm && (
-                <div className={classes.passwordSection}>
-                    <div className={classes.sectionHeader}>
-                        <h2>Password Management</h2>
-                        <small>Last changed: 2 weeks ago</small>
-                    </div>
-                    <button
-                        className={classes.changePasswordButton}
-                        onClick={() => setShowPasswordForm(true)}>
-                        <span className={classes.buttonIcon}>🔑</span>
-                        Change Password
-                    </button>
-                </div>
-            )}
-
-            {showPasswordForm && (
-                <div className={classes.passwordFormContainer}>
-                    <div className={classes.formHeader}>
-                        <h2>Change Your Password</h2>
-                        <button
-                            className={classes.closeFormButton}
-                            onClick={() => {
-                                setShowPasswordForm(false);
-                                setPasswordChangeStatus({
-                                    type: "",
-                                    message: "",
-                                });
-                            }}>
-                            ✕
-                        </button>
-                    </div>
-                    <ProfileForm
-                        onChangePassword={changePasswordHandler}
-                        isLoading={passwordChangeStatus.type === "loading"}
-                    />
-                    <div className={classes.passwordTips}>
-                        <h4>Password Tips:</h4>
-                        <ul>
-                            <li>Use at least 8 characters</li>
-                            <li>Mix letters, numbers, and symbols</li>
-                            <li>Avoid common words and patterns</li>
-                            <li>Don't reuse old passwords</li>
-                        </ul>
-                    </div>
-                </div>
-            )}
-        </section>
+            <div className={classes.actions}>
+                <button
+                    className={classes.saveButton}
+                    onClick={handleSaveSettings}
+                    disabled={isSaving}>
+                    {isSaving ? (
+                        <>
+                            <span className={classes.loadingSpinner}></span>
+                            Saving...
+                        </>
+                    ) : (
+                        "Save All Settings"
+                    )}
+                </button>
+                <button
+                    className={classes.resetButton}
+                    onClick={() => {
+                        setTheme("dark");
+                        setNotifications({
+                            email: true,
+                            push: true,
+                            sound: false,
+                            marketing: false,
+                        });
+                        setPrivacy({
+                            profileVisible: true,
+                            onlineStatus: true,
+                            activityVisible: true,
+                        });
+                        setLanguage("en");
+                    }}>
+                    Reset to Defaults
+                </button>
+            </div>
+        </div>
     );
 }
 
-export default UserProfile;
+SettingsPage.getLayout = (page) => <Layout>{page}</Layout>;
+
+export async function getServerSideProps(context) {
+    const session = await getSession({ req: context.req });
+
+    if (!session) {
+        return {
+            redirect: {
+                destination: "/auth",
+                permanent: false,
+            },
+        };
+    }
+
+    return {
+        props: { session },
+    };
+}
+
+export default SettingsPage;
