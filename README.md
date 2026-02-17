@@ -16,6 +16,10 @@ A secure, full-featured authentication and user management system built with Nex
   </div>
 </a>
 
+</div>
+</div>
+
+
 ## 📸 Project Preview
 
 <p align="center">
